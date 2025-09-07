@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Vermelho</title>
+<style>
+  body { background-color: #ed1c24; color: white; font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+  input, button { padding: 10px; font-size: 16px; margin: 5px; border-radius: 5px; border: none; }
+  button { background-color: #fff; color: #ed1c24; cursor: pointer; font-weight: bold; }
+  ul { list-style: none; padding: 0; margin-top: 20px; }
+</style>
+</head>
+<body>
+<h1>Envie seu número</h1>
+<input type="text" id="numero" placeholder="Digite seu número" />
+<button onclick="enviarNumero()">Enviar</button>
+
+<h2>Números enviados:</h2>
+<ul id="listaNumeros"></ul>
+
+<script>
+async function enviarNumero() {
+  const numero = document.getElementById("numero").value;
+  if(!numero) return alert("Digite um número!");
+  try {
+    await fetch("/salvar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ numero })
+    });
+    document.getElementById("numero").value = "";
+    carregarNumeros();
+  } catch(err) { console.error(err); }
+}
+
+async function carregarNumeros() {
+  const res = await fetch("/listar");
+  const dados = await res.json();
+  const ul = document.getElementById("listaNumeros");
+  ul.innerHTML = "";
+  dados.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.numero + " - " + new Date(item.salvoEm).toLocaleString();
+    ul.appendChild(li);
+  });
+}
+
+// Carrega os números ao abrir a página
+carregarNumeros();
+</script>
+</body>
+</html>
